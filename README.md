@@ -1,4 +1,4 @@
-# Go Kafka Receiver
+# Go WebSocket 2 Kafka Bridge
 
 ## build
 
