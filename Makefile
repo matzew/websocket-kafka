@@ -1,7 +1,8 @@
-BINARY ?= ws_kafka
-APP_NAME = websocketkafka
-DOCKER_LATEST_TAG = docker.io/matzew/$(APP_NAME):latest
-DOCKER_MASTER_TAG = docker.io/matzew/$(APP_NAME):master
+BINARY ?= ws-kafka
+APP_NAME = ws-kafka
+DOCKER_USER=matzew
+DOCKER_LATEST_TAG = docker.io/$(DOCKER_USER)/$(APP_NAME):latest
+DOCKER_MASTER_TAG = docker.io/$(DOCKER_USER)/$(APP_NAME):master
 RELEASE_TAG ?= $(CIRCLE_TAG)
 DOCKER_RELEASE_TAG = matzew/$(APP_NAME):$(RELEASE_TAG)
 
@@ -18,7 +19,7 @@ build_linux:
 	env GOOS=linux GOARCH=amd64 go build -o $(BINARY) ./cmd/bridge/main.go
 
 .PHONY: docker_build
-docker_build: build_linux
+docker_build:
 	docker build -t $(DOCKER_LATEST_TAG) -f Dockerfile .
 
 .PHONY: docker_build_release
@@ -44,4 +45,3 @@ docker_push_release:
 	@docker login --username $(DOCKERHUB_USERNAME) --password $(DOCKERHUB_PASSWORD)
 	docker push $(DOCKER_LATEST_TAG)
 	docker push $(DOCKER_RELEASE_TAG)
-
