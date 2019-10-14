@@ -15,8 +15,14 @@ type config struct {
 
 // config object
 func GetConfig() config {
+	bootstrapServers := getEnv("KAFKA_BOOTSTRAP_SERVERS", "")
+	if bootstrapServers == "" {
+		host := getEnv("KAFKA_HOST", "localhost")
+		port := getEnv("KAFKA_PORT", "9092")
+		bootstrapServers = host + ":" + port
+	}
 	return config{
-		BootStrapServers: strings.ToLower(getEnv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")),
+		BootStrapServers: strings.ToLower(bootstrapServers),
 		WebSocketServer:  strings.ToLower(getEnv("WEBSOCKET_SERVER", "wss://localhost/echo")),
 		KafkaTopic:       os.Getenv("KAFKA_TOPIC"),
 		LogLevel:         strings.ToLower(getEnv("LOG_LEVEL", "info")),
