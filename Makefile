@@ -1,5 +1,5 @@
-BINARY ?= ws-kafka
-APP_NAME = ws-kafka
+BINARY ?= http-kafka
+APP_NAME = http-kafka
 DOCKER_USER=matzew
 DOCKER_LATEST_TAG = docker.io/$(DOCKER_USER)/$(APP_NAME):latest
 DOCKER_MASTER_TAG = docker.io/$(DOCKER_USER)/$(APP_NAME):master

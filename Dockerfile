@@ -10,7 +10,7 @@ MAINTAINER Matthias Wessendorf <matzew@apache.org>
 ADD . /src
 WORKDIR /src
 # RUN go get github.com/Masterminds/glide
-RUN CGO=0 go build -o ws-kafka ./cmd/bridge/main.go
+RUN CGO=0 go build -o http-kafka ./cmd/bridge/main.go
 
 FROM centos
 
@@ -19,5 +19,5 @@ ENV KAFKA_TOPIC=my-topic
 ENV KAFKA_BOOTSTRAP_HOST=localhost
 ENV KAFKA_BOOTSTRAP_PORT=9092
 
-COPY --from=build /src/ws-kafka /ws-kafka
-ENTRYPOINT ["/ws-kafka"]
+COPY --from=build /src/http-kafka /http-kafka
+ENTRYPOINT ["/http-kafka"]

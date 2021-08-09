@@ -3,15 +3,16 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
-	"os/signal"
+
+	"net/http"
+	"net/http/httputil"
+	"time"
 
 	"github.com/Shopify/sarama"
 	"github.com/matzew/ws-kafka/pkg/config"
-	"github.com/sacOO7/gowebsocket"
 )
 
-func bridgeToKafka(message string, socket gowebsocket.Socket) {
+func bridgeToKafka(message string) {
 
 	config := config.GetConfig()
 	cfg := sarama.NewConfig()
@@ -45,29 +46,23 @@ func bridgeToKafka(message string, socket gowebsocket.Socket) {
 
 }
 
+func dumpToKafka(w http.ResponseWriter, r *http.Request) {
+	// Simulate at least a bit of processing time.
+	time.Sleep(100 * time.Millisecond)
+
+	w.WriteHeader(http.StatusOK)
+	if reqBytes, err := httputil.DumpRequest(r, true); err == nil {
+		log.Printf("Openshift Http Request Dumper received a message: %+v", string(reqBytes))
+		bridgeToKafka(string(reqBytes))
+		w.Write(reqBytes)
+	} else {
+		log.Printf("Error dumping the request: %+v :: %+v", err, r)
+	}
+}
+
 func main() {
-	interrupt := make(chan os.Signal, 1)
-	signal.Notify(interrupt, os.Interrupt)
+	m := http.NewServeMux()
+	m.HandleFunc("/", dumpToKafka)
 
-	config := config.GetConfig()
-
-	socket := gowebsocket.New(config.WebSocketServer)
-
-	socket.OnConnectError = func(err error, socket gowebsocket.Socket) {
-		log.Fatal("Received connect error - ", err)
-	}
-
-	// attach event handler
-	socket.OnTextMessage = bridgeToKafka
-
-	socket.Connect()
-
-	for {
-		select {
-		case <-interrupt:
-			log.Println("interrupt")
-			socket.Close()
-			return
-		}
-	}
+	http.ListenAndServe(":8080", m)
 }
